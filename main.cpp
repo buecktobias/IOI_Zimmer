@@ -3,6 +3,7 @@
 #include <vector>
 #include <algorithm>
 #include <list>
+#include <cmath>
 
 using namespace std;
 
@@ -13,6 +14,10 @@ struct Range{
     int amountOfStations;
 
     Range(range r, int amountOfStations) : r(std::move(r)), amountOfStations(amountOfStations) {}
+
+    long long size(){
+        return (abs(r.first - r.second) + 1) * amountOfStations;
+    }
 
     friend ostream &operator<<(ostream &os, const Range &range1) {
         os << range1.r.first << " - " << range1.r.second << " = " << to_string(range1.amountOfStations) << endl;
@@ -50,14 +55,14 @@ list<Range> getStationRanges(const vector<range>& ranges){
         if (currentX < rangesXs.size()) {
             currentXElement = rangesXs[currentX];
         }else{
-            currentXElement = INT32_MAX;
+            currentXElement = INT64_MAX;
         }
 
         long long currentYElement;
         if (currentY < rangesYs.size()) {
             currentYElement = rangesYs[currentY];
         }else{
-            currentYElement = INT32_MAX;
+            currentYElement = INT64_MAX;
         }
 
 
@@ -80,14 +85,50 @@ list<Range> getStationRanges(const vector<range>& ranges){
     return stationRanges;
 
 }
+
+long long getRoomNumber(long long friendsRoom, const list<Range>& stationRanges){
+    auto it = stationRanges.begin();
+    long long& room = friendsRoom;
+    long long roomNumber;
+
+    while(true){
+        Range r = *it;
+        long long tmp = room;
+        room -= r.size();
+        if(room <= 0){
+            room = tmp;
+            roomNumber = (long long) (r.r.first) + (long long)floor(room / r.amountOfStations);
+            break;
+        }
+        advance(it,1);
+    }
+    return roomNumber;
+}
+
+
+vector<long long> getRoomNumbers(vector<long long> friendsRooms, const list<Range>& stationRanges){
+    vector<long long> result;
+    result.resize(friendsRooms.size());
+
+    for(unsigned long i = 0; i < friendsRooms.size(); i++){
+        result[i] = getRoomNumber(friendsRooms[i],stationRanges);
+    }
+    return result;
+}
+
 int main() {
+    long long room = 5;
+    range r1 (6, 10);
+    range r2 (9,12);
+    range r3 (4,8);
+    vector<range> ranges {r1, r2, r3};
+    vector<long long> friendRooms {3, 7, 9, 1};
+    list<Range> stationRanges = getStationRanges(ranges);
+    for(Range r: stationRanges) cout << r;
 
-    range r1 (3, 18);
-    range r2 (50,100);
-    range r3 (22,51);
-
-    vector<range> ranges {r1,r2,r3};
-
+    for(long long n: getRoomNumbers(friendRooms,stationRanges)){
+        cout << n << endl;
+    }
 
 
 
